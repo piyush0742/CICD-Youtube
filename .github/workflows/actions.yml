@@ -34,8 +34,10 @@ jobs:
            cd dist
            pwd
            ls -l
-           mkdir /home/runner/work/build/
+           cd /home/runner/work/
+           mkdir build
            pwd
+           
       
 
   
