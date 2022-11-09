@@ -34,10 +34,18 @@ jobs:
            cd dist
            pwd
            ls -l
-           cd /home/runner/work/
-           mkdir build
-           cd build 
-           pwd
+           
+      # Set the credentials from repository settings/secrets
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      # Copy the files from build folder to the S3 bucket
+      - name: Deploy to S3
+        run: aws s3 sync . s3://for-ci --acl public-read
+        working-directory: dist 
            
       
 
