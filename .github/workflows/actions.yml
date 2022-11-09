@@ -34,5 +34,14 @@ jobs:
            cd dist
            pwd
            ls -l
+           mkdir /home/runner/work/build/
+           
+      # Share artifact inside workflow
+      - name: Share artifact inside workflow
+        uses: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: /home/runner/work/build/ 
+
 
   
