@@ -40,7 +40,7 @@ jobs:
       - name: Share artifact inside workflow
         uses: actions/upload-artifact@v1
         with:
-          name: dist
+          name: dist/*
           path: /home/runner/work/build/ 
 
 
