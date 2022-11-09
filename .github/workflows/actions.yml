@@ -36,6 +36,7 @@ jobs:
            ls -l
            cd /home/runner/work/
            mkdir build
+           cd build 
            pwd
            
       
