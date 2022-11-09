@@ -31,5 +31,7 @@ jobs:
         run: |
            pwd
            ls -l
+           cd dist
+           ls -l
 
   
