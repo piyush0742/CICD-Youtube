@@ -1,4 +1,4 @@
-name: CICD for Youtube
+name: cicd
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [12.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -18,35 +18,30 @@ jobs:
         uses: actions/setup-node@v1
         with:
          node-version: ${{ matrix.node-version }}
-      - name: Build the docker_compose
-        run: docker-compose up -d --build
-      
-      - name: Buid the application
-        run: docker-compose exec -T counter_app npm run build
-
-        env: 
-          CI: true 
-
-  Deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v2 
-      - name: Deploy in EC2
-        env:
-            PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY  }}
-            HOSTNAME : ${{ secrets.HOST_DNS  }}
-            USER_NAME : ${{ secrets.USERNAME  }}
-            
+      - name: npm install and build
         run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          npm install
+          npm run build
+        env: 
+          CI: true  
           
-            #Now we have got the access of EC2 and we will start the deploy .
-            cd /home/ubuntu/devops &&
-            git checkout master &&
-            git fetch --all &&
-            git reset --hard origin/master &&
-            git pull origin master &&
-            docker-compose -f docker-compose.prod.yml up -d --build 
+      # current directory
+      - name: find the current directory
+        run: |
+           pwd
+           ls -l
+           cd dist
+           pwd
+           ls -l
+           
+      # Set the credentials from repository settings/secrets
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      # Copy the files from build folder to the S3 bucket
+      - name: Deploy to S3
+        run: aws s3 sync . s3://for-ci/build-"`date +"%d-%m-%Y-%R"`" 
+        working-directory: dist
