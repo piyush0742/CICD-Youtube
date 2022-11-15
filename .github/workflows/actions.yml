@@ -48,7 +48,6 @@ jobs:
  
  
   deploy:
-      - name: Deploy latest code to ec2 instance
         runs-on: ubuntu-latest
         steps:
          - name: executing remote ssh commands using private key
