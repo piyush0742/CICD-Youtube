@@ -54,8 +54,7 @@ jobs:
            uses: appleboy/ssh-action@master
            with:
              host: ${{ secrets.HOST }}
-             username: ${{ secrets.USERNAME }}
-             password: ${{ secrets.PASSWORD }}
-             script: |
-                sudo aws s3 cp s3://for-ci/build/ /home/devops --recursive
+             privateKey: ${{ secrets.PRIVATE_KEY }}
+             command: sudo aws s3 cp s3://for-ci/build/ /home/devops --recursive
+                
                
