@@ -45,9 +45,10 @@ jobs:
       - name: Deploy to S3
         run: aws s3 sync . s3://for-ci/build/ 
         working-directory: dist
-        
+ 
+ 
+  deploy:
       - name: Deploy latest code to ec2 instance
-
         runs-on: ubuntu-latest
         steps:
          - name: executing remote ssh commands using private key
