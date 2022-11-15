@@ -43,5 +43,19 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
       # Copy the files from build folder to the S3 bucket
       - name: Deploy to S3
-        run: aws s3 sync . s3://for-ci/build-"`date +"%d-%m-%Y-%R"`" 
+        run: aws s3 sync . s3://for-ci/build/ 
         working-directory: dist
+        
+      - name: Deploy latest code to ec2 instance
+
+        runs-on: ubuntu-latest
+        steps:
+         - name: executing remote ssh commands using private key
+           uses: appleboy/ssh-action@master
+           with:
+             host: ${{ secrets.HOST }}
+             username: ${{ secrets.USERNAME }}
+             password: ${{ secrets.PASSWORD }}
+             script: |
+                sudo aws s3 cp s3://for-ci/build/ /home/devops --recursive
+               
