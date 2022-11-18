@@ -55,6 +55,6 @@ jobs:
            with:
              host: ${{ secrets.HOST }}
              privateKey: ${{ secrets.PRIVATE_KEY }}
-             command: sudo aws s3 cp s3://for-ci/build/ /home/devops --recursive
+             command: sudo aws s3 cp s3://for-ci/build/ /home --recursive
                 
                
