@@ -1,4 +1,5 @@
-name: cicd
+
+name: CICD for QA
 
 on:
   push:
@@ -10,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [14.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -23,38 +24,33 @@ jobs:
           npm install
           npm run build
         env: 
-          CI: true  
+          CI: true   
           
       # current directory
       - name: find the current directory
         run: |
            pwd
            ls -l
-           cd dist
+           cd build
            pwd
            ls -l
            
-      # Set the credentials from repository settings/secrets
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-      # Copy the files from build folder to the S3 bucket
-      - name: Deploy to S3
-        run: aws s3 sync . s3://for-ci/build/ 
-        working-directory: dist
- 
- 
   deploy:
-        runs-on: ubuntu-latest
-        steps:
-         - name: executing remote ssh commands using private key
-           uses: appleboy/ssh-action@master
-           with:
-             host: ${{ secrets.HOST }}
-             privateKey: ${{ secrets.PRIVATE_KEY }}
-             command: sudo aws s3 cp s3://for-ci/build/ /home --recursive
-                
-               
+    name: Deploy to EC2 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the files
+        uses: actions/checkout@v2
+
+      - name: Deploy to Server 1
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SOURCE: /home/runner/work/CICD-Youtube/CICD-Youtube/dist
+          ARGS: "-rltgoDzvO --delete"
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.HOST_DNS }}
+          REMOTE_USER: ${{ secrets.USERNAME }}
+          TARGET: ${{ secrets.TARGET_DIR }}
+          EXCLUDE: "/dist/, /node_modules/"
+
